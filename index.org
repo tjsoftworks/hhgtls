@@ -6,82 +6,146 @@
 #+REVEAL_TRANS: linear
 #+REVEAL_THEME: rackspace
 
-* Slides
+#+BEGIN_HTML
+<link rel="stylesheet" type="text/css" href="asciinema/asciinema-player.css" />
+<script src="asciinema/asciinema-player.js"></script>
+#+END_HTML
+
+* Tutorial materials
 
   ~https://www.lvh.io/hhgtls~
 
-* Introduction
+* Hello!
 
-** Glyph Lefkowitz
+* Intro to TLS
 
-   Senior Software Engineer, Rackspace
-
-   Invented Twisted
-
-   ~glyph.lefkowitz@rackspace.com~, ~@glyph~
-
-** lvh
-
-   Principal Engineer
-
-   Rackspace Managed Security
-
-   ~lvh@rackspace.com~, ~_@lvh.io~, ~@lvh~
-
-** Paul Kehrer
-
-   Principal Engineer
-
-   Rackspace Managed Security
-
-   ~paul.kehrer@rackspace.com~, ~@reaperhulk~
-
-
-* Clients
-
-** What does a TLS client do?
-
-   Pretty much just verify the cert
-
-** What does "verify" mean?
-
-   It's complicated, but, roughly:
-
-   * Does the hostname match?
-   * Is the certificate still valid?
-   * Is there a trusted chain?
-
-** How do I verify a cert?
-
-   Ooooh boy.
-
-*** So much software gets it wrong
-
-*** Python stdlib
-
-    *17.3.7.2.1. Verifying certificates*
-
-    When calling the SSLContext constructor directly, ~CERT_NONE~ is the
-    default.
-
-*** Big problem
-
-    * Current state often better, but old software
-    * Current docs often better, but old skills
-
-*** ~service_identity~
-
-** Playing around with clients
-
-*** Using requests
-
-    Easy! Fun! Probably safe!
-
-*** Using Twisted endpoints
+  (Hynek)
 
 * Servers
 
 ** Configuring TLS servers
+
+   https://wiki.mozilla.org/Security/Server_Side_TLS
+
+* Twisted
+
+  (Glyph)
+
+* LetsEncrypt
+
+** ACME
+
+** rproxy
+
+   https://pypi.python.org/pypi/rproxy
+
+* Automated analysis
+
+** Browsers are pretty good now
+
+** SSLLabs
+
+   [[https://www.ssllabs.com/ssltest/analyze.html?d=www.lvh.io&latest][Test lvh.io]]
+
+** sslyze
+
+   ~docker pull lvhio/sslyze~
+
+   ~<rant>~
+
+** sslyze
+
+ #+BEGIN_HTML
+  <div id="asciinema-sslyze-lvh"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-sslyze-lvh', 'asciicast/sslyze-lvh.json', {fontSize: 16});
+  </script>
+ #+END_HTML
+
+* Using OpenSSL
+
+ #+BEGIN_HTML
+  <div id="asciinema-lvh-io-no-sni"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-lvh-io-no-sni', 'asciicast/lvh-io-no-sni.json', {fontSize: 16});RB
+  </script>
+ #+END_HTML
+
+* SNI
+
+  (Server Name Indication)
+
+** Problem
+
+   * Client connects to website, looks up IP
+   * Expects TLS with cert for correct /hostname/
+   * What if I host multiple sites on 1 IP?
+
+** Historical reason TLS is expensive
+
+   * 1 site per public IPv4 address
+   * IPv4 addresses are expensive
+   * ⇒ TLS is expensive
+
+** No longer true!
+
+** Enabling SNI with OpenSSL
+
+ #+BEGIN_HTML
+  <div id="asciinema-lvh-io-yes-sni"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-lvh-io-yes-sni', 'asciicast/lvh-io-yes-sni.json', {fontSize: 16});
+  </script>
+ #+END_HTML
+
+* Cipher overlap
+
+ #+BEGIN_HTML
+  <div id="asciinema-no-cipher-overlap"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-no-cipher-overlap', 'asciicast/no-cipher-overlap.json', {fontSize: 16});
+  </script>
+ #+END_HTML
+
+* NPN/ALPN
+
+** NPN
+
+ #+BEGIN_HTML
+  <div id="asciinema-npn"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-npn', 'asciicast/npn.json', {fontSize: 16});
+  </script>
+ #+END_HTML
+
+** ALPN
+
+ #+BEGIN_HTML
+  <div id="asciinema-alpn"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-alpn', 'asciicast/alpn.json', {fontSize: 16});
+  </script>
+ #+END_HTML
+
+* Cross-signed chains
+
+** Oops!
+
+  #+BEGIN_HTML
+  <div id="asciinema-alt-chain-fail"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-alt-chain-fail', 'asciicast/alt-chain-fail.json', {fontSize: 16});
+  </script>
+  #+END_HTML
+
+** Success
+
+  #+BEGIN_HTML
+  <div id="asciinema-alt-chain-success"></div>
+  <script>
+  asciinema.player.js.CreatePlayer('asciinema-alt-chain-success', 'asciicast/alt-chain-success.json', {fontSize: 16});
+  </script>
+  #+END_HTML
 
 * Cert pinning
 
@@ -121,6 +185,27 @@
     Browsers (esp. Chrome) should know this
 
 *** Forgery as a Service
+
+*** PSA: BlueCoat
+
+    [[./media/BlueCoatTrusted.png]]
+
+*** PSA: BlueCoat
+
+    [[./media/BlueCoatUntrusted.png]]
+
+
+*** Untrusting on OS X
+
+    https://blog.filippo.io/untrusting-an-intermediate-ca-on-os-x/
+
+*** Untrusting on Firefox
+
+
+*** Untrusting in general
+
+    https://certsimple.com/blog/control-the-ssl-cas-your-browser-trusts
+
 
 ** HSTS
 
@@ -214,44 +299,3 @@
 *** Who signs your certs?
 
    Probably need your own CA
-
-*** Client library support
-
-   Usually possible, rarely obvious
-
-* SNI
-
-  (Server Name Indication)
-
-** Problem
-
-   * Client connects to website, looks up IP
-   * Expects TLS with cert for correct /hostname/
-   * What if I host multiple sites on 1 IP?
-
-** Historical reason TLS is expensive
-
-   * 1 site per public IPv4 address
-   * IPv4 addresses are expensive
-   * ⇒ TLS is expensive
-
-** No longer true!
-
-** Example: txsni
-
-   #+BEGIN_SRC sh
-   mkdir certificates
-   cat private-stuff/mydomain.key.pem >> \
-       certificates/mydomain.example.com.pem
-   cat public-stuff/mydomain.crt.pem >> \
-       certificates/mydomain.example.com.pem
-   cat public-stuff/my-certificate-authority-chain.crt.pem >> \
-       certificates/mydomain.example.com.pem
-   twistd -n web --port txsni:certificates:tcp:443
-   #+END_SRC
-
-# * NPN/ALPN
-
-* Debugging TLS connections
-
-  https://lukasa.co.uk/2016/01/Debugging_With_Wireshark_TLS/
